@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bundle Bites — Global Cravings, Local Delivery</title>
+
+<!-- Google Fonts (loads when online; system fonts are used as fallback offline) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     Bundle Bites prototype styles
+     Palette is built around snack-packaging energy:
+       raspberry primary, tangerine + snack-yellow accents,
+       warm cocoa ink on a clean light surface.
+     Signature motif: dashed "perforated" tear-lines on the
+       bundle cards and cart, echoing a real snack packet / coupon.
+     ============================================================ */
+  :root {
+    --ink: #2b1714;          /* warm near-black text */
+    --berry: #e23e57;        /* primary raspberry */
+    --berry-dark: #c12c44;
+    --tangerine: #ff8a3d;    /* accent */
+    --yellow: #ffd23f;       /* highlight */
+    --mint: #2fb98d;         /* success / confirmation */
+    --surface: #ffffff;      /* cards */
+    --bg: #fff4ea;           /* warm page background */
+    --line: #f0d8c6;         /* soft divider */
+    --muted: #8a7a72;        /* secondary text */
+    --shadow: 0 14px 34px rgba(43, 23, 20, 0.12);
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+  }
+
+  h1, h2, h3, .brand-name {
+    font-family: "Fredoka", system-ui, sans-serif;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  a { color: inherit; }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: rgba(255, 244, 234, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 2px dashed var(--line);
+  }
+  .header-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 42px; height: 42px;
+    background: var(--berry);
+    border-radius: 13px;
+    display: grid; place-items: center;
+    font-size: 22px;
+    transform: rotate(-6deg);
+    box-shadow: 3px 3px 0 var(--yellow);
+  }
+  .brand-name { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .brand-tag { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+  .cart-btn {
+    position: relative;
+    border: none;
+    background: var(--ink);
+    color: #fff;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .cart-btn:hover { transform: translateY(-1px); background: #3c241f; }
+  .cart-count {
+    background: var(--yellow);
+    color: var(--ink);
+    font-size: 12px;
+    min-width: 20px; height: 20px;
+    border-radius: 999px;
+    display: grid; place-items: center;
+    padding: 0 5px;
+    font-weight: 800;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 22px 30px;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 34px;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-block;
+    background: var(--yellow);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(34px, 5.5vw, 58px);
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+  .hero h1 .pop { color: var(--berry); }
+  .hero p {
+    font-size: 18px;
+    color: #5f4a43;
+    max-width: 460px;
+    margin: 16px 0 26px;
+  }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    border: none;
+    background: var(--berry);
+    color: #fff;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.12s ease;
+  }
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn-ghost {
+    border: 2px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 12px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  /* Hero visual: a stack of snack-pack chips */
+  .hero-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px;
+    transform: rotate(2deg);
+  }
+  .hero-card h3 { font-size: 18px; margin-bottom: 14px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: var(--bg);
+    border: 1.5px dashed var(--line);
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .chip span { font-size: 15px; }
+
+  /* ---------- Section headings ---------- */
+  .section {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 30px 22px;
+  }
+  .section-title {
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .section-sub { color: var(--muted); font-weight: 600; margin-bottom: 26px; }
+
+  /* Subscription toggle */
+  .sub-toggle {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 8px 8px 18px;
+    margin-bottom: 26px;
+    font-weight: 700;
+  }
+  .sub-toggle small { color: var(--muted); font-weight: 700; }
+  .switch { position: relative; width: 50px; height: 28px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; cursor: pointer;
+    background: #e4d3c6; border-radius: 999px; transition: 0.2s;
+  }
+  .slider::before {
+    content: ""; position: absolute; height: 22px; width: 22px;
+    left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s;
+  }
+  .switch input:checked + .slider { background: var(--mint); }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+  .switch input:focus-visible + .slider { outline: 3px solid var(--tangerine); outline-offset: 2px; }
+
+  /* ---------- Bundle cards ---------- */
+  .bundles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .bundle {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 2px dashed var(--line);   /* perforated packet edge (signature motif) */
+    padding: 24px 22px 22px;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow);
+  }
+  .bundle.featured { border: 2px solid var(--berry); }
+  .badge-best {
+    position: absolute; top: -13px; left: 22px;
+    background: var(--berry); color: #fff;
+    font-size: 11px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px; border-radius: 999px;
+  }
+  .bundle-name { font-size: 21px; font-weight: 700; }
+  .bundle-count { color: var(--muted); font-weight: 700; font-size: 13px; margin-top: 2px; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 4px; }
+  .price { font-family: "Fredoka", sans-serif; font-size: 34px; font-weight: 700; color: var(--berry); }
+  .price-old { color: var(--muted); text-decoration: line-through; font-weight: 700; font-size: 16px; }
+  .snack-list { list-style: none; padding: 0; margin: 16px 0; flex-grow: 1; }
+  .snack-list li {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 14px; font-weight: 600; padding: 4px 0;
+    border-bottom: 1px solid var(--bg);
+  }
+  .snack-list li .dot { font-size: 15px; }
+  .add-btn {
+    border: none; width: 100%;
+    background: var(--ink); color: #fff;
+    font-family: "Nunito", sans-serif; font-weight: 800; font-size: 15px;
+    padding: 13px; border-radius: 12px; cursor: pointer;
+    transition: background 0.12s ease, transform 0.12s ease;
+  }
+  .add-btn:hover { background: var(--berry); transform: translateY(-1px); }
+  .bundle.featured .add-btn { background: var(--berry); }
+  .bundle.featured .add-btn:hover { background: var(--berry-dark); }
+
+  /* ---------- How it works ---------- */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .step {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 22px 18px; box-shadow: var(--shadow);
+  }
+  .step .num {
+    width: 36px; height: 36px; border-radius: 11px;
+    background: var(--yellow); color: var(--ink);
+    font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 18px;
+    display: grid; place-items: center; margin-bottom: 12px;
+  }
+  .step h3 { font-size: 16px; margin-bottom: 5px; }
+  .step p { margin: 0; font-size: 13.5px; color: var(--muted); font-weight: 600; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 2px dashed var(--line);
+    margin-top: 24px;
+    padding: 26px 22px;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 700; font-size: 13px;
+  }
+  footer .handles { color: var(--berry); }
+
+  /* ---------- Cart drawer ---------- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(43, 23, 20, 0.45);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 40;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; height: 100%;
+    width: 400px; max-width: 90vw;
+    background: var(--bg);
+    box-shadow: -12px 0 40px rgba(43, 23, 20, 0.25);
+    transform: translateX(100%); transition: transform 0.25s ease;
+    z-index: 50; display: flex; flex-direction: column;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head {
+    padding: 20px 22px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px dashed var(--line);
+  }
+  .drawer-head h2 { font-size: 22px; }
+  .close-x {
+    border: none; background: var(--surface); width: 36px; height: 36px;
+    border-radius: 10px; font-size: 20px; cursor: pointer; line-height: 1; color: var(--ink);
+  }
+  .drawer-body { flex-grow: 1; overflow-y: auto; padding: 18px 22px; }
+  .drawer-foot { padding: 18px 22px 22px; border-top: 2px dashed var(--line); background: var(--surface); }
+
+  .cart-item {
+    background: var(--surface); border-radius: 14px;
+    padding: 14px; margin-bottom: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .cart-item .ci-emoji { font-size: 26px; }
+  .cart-item .ci-info { flex-grow: 1; }
+  .cart-item .ci-name { font-weight: 800; font-size: 15px; }
+  .cart-item .ci-price { color: var(--muted); font-weight: 700; font-size: 13px; }
+  .qty { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .qty button {
+    width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--line);
+    background: var(--bg); font-size: 16px; font-weight: 800; cursor: pointer; line-height: 1;
+  }
+  .qty span { font-weight: 800; min-width: 18px; text-align: center; }
+  .ci-remove {
+    border: none; background: none; color: var(--berry);
+    font-weight: 800; font-size: 12px; cursor: pointer; padding: 0; margin-top: 6px;
+  }
+
+  .empty-cart { text-align: center; color: var(--muted); font-weight: 700; padding: 50px 10px; }
+  .empty-cart .big { font-size: 44px; }
+
+  /* delivery choice */
+  .delivery-choice { margin: 4px 0 14px; }
+  .delivery-choice .dc-label { font-weight: 800; font-size: 13px; margin-bottom: 8px; }
+  .dc-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .dc-options label {
+    border: 2px solid var(--line); border-radius: 12px; padding: 10px;
+    font-weight: 700; font-size: 13px; cursor: pointer; text-align: center; background: var(--bg);
+  }
+  .dc-options input { position: absolute; opacity: 0; }
+  .dc-options label.active { border-color: var(--berry); background: #fff0f2; color: var(--berry); }
+
+  .total-row { display: flex; justify-content: space-between; font-weight: 700; margin: 4px 0; font-size: 14px; }
+  .total-row.grand { font-size: 19px; font-weight: 800; margin-top: 10px; }
+  .total-row .save { color: var(--mint); }
+  .checkout-btn {
+    width: 100%; border: none; margin-top: 14px;
+    background: var(--berry); color: #fff;
+    font-family: "Nunito", sans-serif; font-weight: 800; font-size: 16px;
+    padding: 15px; border-radius: 12px; cursor: pointer;
+  }
+  .checkout-btn:disabled { background: #d9c4b8; cursor: not-allowed; }
+
+  /* checkout + confirmation forms */
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-weight: 800; font-size: 13px; margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%; padding: 11px 13px; border-radius: 11px;
+    border: 2px solid var(--line); background: var(--surface);
+    font-family: "Nunito", sans-serif; font-size: 15px; font-weight: 600; color: var(--ink);
+  }
+  .field input:focus, .field select:focus { outline: 3px solid var(--tangerine); outline-offset: 1px; border-color: var(--tangerine); }
+  .err { color: var(--berry); font-size: 12px; font-weight: 800; margin-top: 4px; display: none; }
+  .err.show { display: block; }
+  .back-link { border: none; background: none; color: var(--muted); font-weight: 800; font-size: 13px; cursor: pointer; padding: 0; margin-bottom: 12px; }
+
+  /* confirmation */
+  .confirm-wrap { text-align: center; padding: 30px 8px; }
+  .confirm-wrap .tick {
+    width: 70px; height: 70px; margin: 0 auto 16px;
+    background: var(--mint); border-radius: 50%;
+    display: grid; place-items: center; font-size: 38px; color: #fff;
+  }
+  .confirm-wrap h2 { font-size: 26px; margin-bottom: 8px; }
+  .confirm-wrap p { color: var(--muted); font-weight: 700; margin: 4px 0; }
+  .order-no { font-family: "Fredoka", sans-serif; font-size: 22px; color: var(--berry); font-weight: 700; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; font-weight: 800; font-size: 14px;
+    padding: 12px 20px; border-radius: 999px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease; z-index: 60;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  :focus-visible { outline: 3px solid var(--tangerine); outline-offset: 2px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-top: 36px; }
+    .hero-card { transform: none; }
+    .bundles { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .steps { grid-template-columns: 1fr; }
+    .header-inner { padding: 12px 16px; }
+    .brand-tag { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">🍿</div>
+      <div>
+        <div class="brand-name">Bundle Bites</div>
+        <div class="brand-tag">Global Cravings, Local Delivery</div>
+      </div>
+    </div>
+    <button class="cart-btn" id="openCartBtn" aria-label="Open cart">
+      🛒 Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div>
+    <span class="eyebrow">For MMU Melaka students</span>
+    <h1>Snacks from <span class="pop">around the world</span>, delivered to your hostel.</h1>
+    <p>No transport? No problem. We curate boxes of imported and premium snacks
+       you can't find near campus — and bring them straight to your door.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="scrollToBundles()">Browse bundles</button>
+      <button class="btn-ghost" onclick="scrollToHow()">How it works</button>
+    </div>
+  </div>
+  <div class="hero-card">
+    <h3>Inside every box 🎁</h3>
+    <div class="chip-row">
+      <span class="chip"><span>🍫</span> Imported chocolate</span>
+      <span class="chip"><span>🍜</span> Korean snacks</span>
+      <span class="chip"><span>🍪</span> Japanese treats</span>
+      <span class="chip"><span>🥨</span> Western crisps</span>
+      <span class="chip"><span>🍬</span> Candy & gummies</span>
+      <span class="chip"><span>🚚</span> Free campus delivery</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BUNDLES ============ -->
+<section class="section" id="bundles">
+  <h2 class="section-title">Pick your bundle</h2>
+  <p class="section-sub">Curated snack boxes, priced for a student budget.</p>
+
+  <label class="sub-toggle">
+    <span>Subscribe &amp; save <small>— 10% off weekly/monthly delivery</small></span>
+    <span class="switch">
+      <input type="checkbox" id="subToggle" onchange="toggleSubscription()" />
+      <span class="slider"></span>
+    </span>
+  </label>
+
+  <div class="bundles" id="bundleGrid"><!-- filled by JavaScript --></div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section" id="how">
+  <h2 class="section-title">How it works</h2>
+  <p class="section-sub">From craving to crunching in four steps.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h3>Pick a bundle</h3>
+      <p>Choose Basic, Premium or Deluxe — or subscribe for weekly drops.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h3>Check out</h3>
+      <p>Tell us your hostel or a campus pickup point and pay by transfer.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h3>We deliver</h3>
+      <p>Your box reaches campus on the next weekly delivery run.</p>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <h3>Snack &amp; share</h3>
+      <p>Tear it open, enjoy, and tag us @bundlebites.mmu.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Bundle Bites — a student startup prototype · <span class="handles">@bundlebites.mmu · bundlebites@gmail.com</span>
+</footer>
+
+<!-- ============ CART DRAWER ============ -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Shopping cart">
+  <div class="drawer-head">
+    <h2 id="drawerTitle">Your cart</h2>
+    <button class="close-x" onclick="closeCart()" aria-label="Close cart">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"><!-- filled by JavaScript --></div>
+  <div class="drawer-foot" id="drawerFoot"><!-- filled by JavaScript --></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   Bundle Bites — prototype logic (vanilla JavaScript)
+   Stores cart in localStorage so it survives page refreshes.
+   Three views inside the cart drawer: CART -> CHECKOUT -> DONE.
+   ================================================================ */
+
+// ---- Product data: the three snack bundles ----
+var BUNDLES = [
+  {
+    id: "basic",
+    name: "Basic Bundle",
+    count: 5,
+    price: 15,
+    featured: false,
+    snacks: ["Pocky (Japan)", "Haribo Goldbears (Germany)", "Oreo Original", "Kinder Bueno", "Lay's Stax"]
+  },
+  {
+    id: "premium",
+    name: "Premium Bundle",
+    count: 8,
+    price: 25,
+    featured: true,
+    snacks: ["My Little Pony Popping Candy", "Kang Shi Fu Soup Noodle (Mushroom Chicken)", "Chi Forest Ice Lemon Black Tea", "Yuwei Yam Chips", "Konica Shuang Szechwan Taste", "Lays FIFA Chips Fish &amp; Chips Flavour", "Cacao Mochi Strawberry", "Tohato Sanrio Characters Snack (Caramel)"]
+  },
+  {
+    id: "deluxe",
+    name: "Deluxe Bundle",
+    count: 12,
+    price: 35,
+    featured: false,
+    snacks: ["Everything in Premium", "Buldak Ramen snack", "Meiji Hello Panda", "Toblerone", "Skittles"]
+  }
+];
+
+// Emoji shown next to each bundle in the cart, keyed by bundle id
+var BUNDLE_EMOJI = { basic: "📦", premium: "🎁", deluxe: "🛍️" };
+
+// Delivery is free for both options in this prototype
+var DELIVERY_FEE = 0;
+var SUB_DISCOUNT_RATE = 0.10; // 10% off when subscribing
+
+// ---- App state ----
+var cart = loadCart();            // { bundleId: quantity }
+var isSubscriber = false;         // subscription toggle state
+var deliveryMode = "hostel";      // "hostel" or "pickup"
+var drawerView = "cart";          // "cart" | "checkout" | "done"
+
+// ---- Persistence helpers ----
+function loadCart() {
+  try {
+    var saved = localStorage.getItem("bundleBitesCart");
+    return saved ? JSON.parse(saved) : {};
+  } catch (e) {
+    return {};
+  }
+}
+function saveCart() {
+  try {
+    localStorage.setItem("bundleBitesCart", JSON.stringify(cart));
+  } catch (e) {
+    // localStorage may be unavailable in some file:// setups — fail silently
+  }
+}
+
+// ---- Build the bundle cards on page load ----
+function renderBundles() {
+  var grid = document.getElementById("bundleGrid");
+  var html = "";
+  for (var i = 0; i < BUNDLES.length; i++) {
+    var b = BUNDLES[i];
+    var price = currentPrice(b.price);
+
+    html += '<div class="bundle' + (b.featured ? ' featured' : '') + '">';
+    if (b.featured) { html += '<span class="badge-best">Most popular</span>'; }
+    html += '<div class="bundle-name">' + b.name + '</div>';
+    html += '<div class="bundle-count">' + b.count + ' snacks per box</div>';
+
+    html += '<div class="price-row"><span class="price">RM' + price.toFixed(2) + '</span>';
+    if (isSubscriber) {
+      html += '<span class="price-old">RM' + b.price.toFixed(2) + '</span>';
+    }
+    html += '</div>';
+
+    html += '<ul class="snack-list">';
+    for (var j = 0; j < b.snacks.length; j++) {
+      html += '<li><span class="dot">🍩</span>' + b.snacks[j] + '</li>';
+    }
+    html += '</ul>';
+
+    html += '<button class="add-btn" onclick="addToCart(\'' + b.id + '\')">Add to cart</button>';
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+// Price after applying the subscription discount (if active)
+function currentPrice(base) {
+  return isSubscriber ? base * (1 - SUB_DISCOUNT_RATE) : base;
+}
+
+function getBundle(id) {
+  for (var i = 0; i < BUNDLES.length; i++) {
+    if (BUNDLES[i].id === id) { return BUNDLES[i]; }
+  }
+  return null;
+}
+
+// ---- Cart actions ----
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  saveCart();
+  updateCartCount();
+  renderDrawer();
+  showToast(getBundle(id).name + " added to cart");
+}
+
+function changeQty(id, delta) {
+  cart[id] = (cart[id] || 0) + delta;
+  if (cart[id] <= 0) { delete cart[id]; }
+  saveCart();
+  updateCartCount();
+  renderDrawer();
+}
+
+function removeItem(id) {
+  delete cart[id];
+  saveCart();
+  updateCartCount();
+  renderDrawer();
+}
+
+function cartItemCount() {
+  var total = 0;
+  for (var id in cart) {
+    if (cart.hasOwnProperty(id)) { total += cart[id]; }
+  }
+  return total;
+}
+
+function cartSubtotal() {
+  // Subtotal at full (non-discounted) prices
+  var sum = 0;
+  for (var id in cart) {
+    if (cart.hasOwnProperty(id)) {
+      var b = getBundle(id);
+      if (b) { sum += b.price * cart[id]; }
+    }
+  }
+  return sum;
+}
+
+function updateCartCount() {
+  document.getElementById("cartCount").innerText = cartItemCount();
+}
+
+// ---- Subscription + delivery toggles ----
+function toggleSubscription() {
+  isSubscriber = document.getElementById("subToggle").checked;
+  renderBundles();   // prices on the cards change
+  renderDrawer();    // totals in the cart change
+}
+
+function setDelivery(mode) {
+  deliveryMode = mode;
+  renderDrawer();
+}
+
+// ---- Drawer open / close ----
+function openCart() {
+  drawerView = "cart";
+  renderDrawer();
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("overlay").classList.add("open");
+  document.getElementById("drawer").setAttribute("aria-hidden", "false");
+}
+function closeCart() {
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("overlay").classList.remove("open");
+  document.getElementById("drawer").setAttribute("aria-hidden", "true");
+}
+
+// ---- Render the drawer depending on the current view ----
+function renderDrawer() {
+  if (drawerView === "checkout") { return renderCheckout(); }
+  if (drawerView === "done") { return; } // confirmation stays until closed
+  renderCartView();
+}
+
+function renderCartView() {
+  document.getElementById("drawerTitle").innerText = "Your cart";
+  var body = document.getElementById("drawerBody");
+  var foot = document.getElementById("drawerFoot");
+
+  if (cartItemCount() === 0) {
+    body.innerHTML =
+      '<div class="empty-cart"><div class="big">🛒</div>' +
+      '<p>Your cart is empty.<br>Add a bundle to get started!</p></div>';
+    foot.innerHTML = "";
+    return;
+  }
+
+  // List each bundle in the cart
+  var html = "";
+  for (var id in cart) {
+    if (!cart.hasOwnProperty(id)) { continue; }
+    var b = getBundle(id);
+    var lineTotal = currentPrice(b.price) * cart[id];
+    html += '<div class="cart-item">';
+    html += '<div class="ci-emoji">' + BUNDLE_EMOJI[id] + '</div>';
+    html += '<div class="ci-info">';
+    html += '<div class="ci-name">' + b.name + '</div>';
+    html += '<div class="ci-price">RM' + currentPrice(b.price).toFixed(2) + ' each · RM' + lineTotal.toFixed(2) + ' total</div>';
+    html += '<div class="qty">';
+    html += '<button onclick="changeQty(\'' + id + '\', -1)" aria-label="Decrease quantity">−</button>';
+    html += '<span>' + cart[id] + '</span>';
+    html += '<button onclick="changeQty(\'' + id + '\', 1)" aria-label="Increase quantity">+</button>';
+    html += '</div>';
+    html += '<button class="ci-remove" onclick="removeItem(\'' + id + '\')">Remove</button>';
+    html += '</div></div>';
+  }
+  body.innerHTML = html;
+
+  // Footer: delivery choice + totals + checkout button
+  foot.innerHTML = deliveryAndTotalsHTML() +
+    '<button class="checkout-btn" onclick="goToCheckout()">Checkout</button>';
+}
+
+function deliveryAndTotalsHTML() {
+  var subtotal = cartSubtotal();
+  var discount = isSubscriber ? subtotal * SUB_DISCOUNT_RATE : 0;
+  var total = subtotal - discount + DELIVERY_FEE;
+
+  var html = '<div class="delivery-choice"><div class="dc-label">Delivery</div>';
+  html += '<div class="dc-options">';
+  html += '<label class="' + (deliveryMode === "hostel" ? "active" : "") + '">' +
+          '<input type="radio" name="delivery" onclick="setDelivery(\'hostel\')"' +
+          (deliveryMode === "hostel" ? " checked" : "") + '> 🏠 Hostel delivery</label>';
+  html += '<label class="' + (deliveryMode === "pickup" ? "active" : "") + '">' +
+          '<input type="radio" name="delivery" onclick="setDelivery(\'pickup\')"' +
+          (deliveryMode === "pickup" ? " checked" : "") + '> 📍 Campus pickup</label>';
+  html += '</div></div>';
+
+  html += '<div class="total-row"><span>Subtotal</span><span>RM' + subtotal.toFixed(2) + '</span></div>';
+  if (isSubscriber) {
+    html += '<div class="total-row save"><span>Subscriber discount (10%)</span><span>− RM' + discount.toFixed(2) + '</span></div>';
+  }
+  html += '<div class="total-row"><span>Delivery</span><span>Free</span></div>';
+  html += '<div class="total-row grand"><span>Total</span><span>RM' + total.toFixed(2) + '</span></div>';
+  return html;
+}
+
+// ---- Checkout view ----
+function goToCheckout() {
+  drawerView = "checkout";
+  renderCheckout();
+}
+
+function renderCheckout() {
+  document.getElementById("drawerTitle").innerText = "Checkout";
+  var body = document.getElementById("drawerBody");
+  var foot = document.getElementById("drawerFoot");
+
+  var locationLabel = deliveryMode === "hostel" ? "Hostel & room number" : "Preferred campus pickup point";
+  var locationPlaceholder = deliveryMode === "hostel" ? "e.g. HB1, Room 204" : "e.g. FCI lobby";
+
+  body.innerHTML =
+    '<button class="back-link" onclick="backToCart()">← Back to cart</button>' +
+    '<div class="field"><label for="custName">Full name</label>' +
+      '<input id="custName" type="text" placeholder="Your name" />' +
+      '<div class="err" id="errName">Please enter your name.</div></div>' +
+    '<div class="field"><label for="custPhone">Phone number</label>' +
+      '<input id="custPhone" type="tel" placeholder="e.g. 012-3456789" />' +
+      '<div class="err" id="errPhone">Please enter a valid phone number.</div></div>' +
+    '<div class="field"><label for="custLoc">' + locationLabel + '</label>' +
+      '<input id="custLoc" type="text" placeholder="' + locationPlaceholder + '" />' +
+      '<div class="err" id="errLoc">Please tell us where to deliver.</div></div>' +
+    '<div class="field"><label for="payMethod">Payment method</label>' +
+      '<select id="payMethod">' +
+        '<option value="transfer">Online bank transfer (DuitNow)</option>' +
+        '<option value="ewallet">E-wallet (Touch \'n Go / GrabPay)</option>' +
+        '<option value="cod">Cash on delivery</option>' +
+      '</select></div>';
+
+  foot.innerHTML = deliveryAndTotalsHTML() +
+    '<button class="checkout-btn" onclick="placeOrder()">Place order</button>';
+}
+
+function backToCart() {
+  drawerView = "cart";
+  renderCartView();
+}
+
+// ---- Validate the form and place the order ----
+function placeOrder() {
+  var name = document.getElementById("custName").value.trim();
+  var phone = document.getElementById("custPhone").value.trim();
+  var loc = document.getElementById("custLoc").value.trim();
+  var ok = true;
+
+  toggleError("errName", name.length === 0);
+  if (name.length === 0) { ok = false; }
+
+  // Accept Malaysian-style phone numbers: digits, spaces and dashes, 9-12 digits
+  var digits = phone.replace(/[^0-9]/g, "");
+  var phoneValid = digits.length >= 9 && digits.length <= 12;
+  toggleError("errPhone", !phoneValid);
+  if (!phoneValid) { ok = false; }
+
+  toggleError("errLoc", loc.length === 0);
+  if (loc.length === 0) { ok = false; }
+
+  if (!ok) { return; }
+
+  // Success: clear cart and show confirmation
+  showConfirmation(name);
+  cart = {};
+  saveCart();
+  updateCartCount();
+}
+
+function toggleError(elId, show) {
+  var el = document.getElementById(elId);
+  if (el) { el.className = show ? "err show" : "err"; }
+}
+
+// ---- Confirmation view ----
+function showConfirmation(name) {
+  drawerView = "done";
+  document.getElementById("drawerTitle").innerText = "Order placed";
+  // Generate a simple readable order number, e.g. BB-4821
+  var orderNo = "BB-" + Math.floor(1000 + Math.random() * 9000);
+  var mode = deliveryMode === "hostel" ? "delivered to your hostel" : "ready at your campus pickup point";
+
+  document.getElementById("drawerBody").innerHTML =
+    '<div class="confirm-wrap">' +
+      '<div class="tick">✓</div>' +
+      '<h2>Thanks, ' + escapeHtml(name) + '!</h2>' +
+      '<p>Your order is confirmed.</p>' +
+      '<p class="order-no">' + orderNo + '</p>' +
+      '<p>Your bundle will be ' + mode + ' on the next weekly delivery run. ' +
+      'We\'ll WhatsApp you the details.</p>' +
+    '</div>';
+
+  document.getElementById("drawerFoot").innerHTML =
+    '<button class="checkout-btn" onclick="finishOrder()">Done</button>';
+}
+
+function finishOrder() {
+  drawerView = "cart";
+  closeCart();
+  showToast("Order confirmed — enjoy your snacks! 🍿");
+}
+
+// Basic HTML escaping so a name with < or > can't break the layout
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// ---- Small UI helpers ----
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+}
+
+function scrollToBundles() {
+  document.getElementById("bundles").scrollIntoView({ behavior: "smooth" });
+}
+function scrollToHow() {
+  document.getElementById("how").scrollIntoView({ behavior: "smooth" });
+}
+
+// Close the drawer with the Escape key
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") { closeCart(); }
+});
+
+// ---- Init on load ----
+window.onload = function () {
+  renderBundles();
+  updateCartCount();
+  document.getElementById("openCartBtn").onclick = openCart;
+};
+</script>
+</body>
+</html>
